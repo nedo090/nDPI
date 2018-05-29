@@ -63,7 +63,7 @@ int min_val(int a, int b){
 	  return b;
 }
 
-char* FlowdissectMDNS(uint8_t *payload, uint16_t payload_len,struct ndpi_flow_struct *flow) {
+void FlowdissectMDNS(uint8_t *payload, uint16_t payload_len,struct ndpi_flow_struct *flow) {
   uint16_t answers, i = 0;
 
   PACK_ON
@@ -264,8 +264,19 @@ char* FlowdissectMDNS(uint8_t *payload, uint16_t payload_len,struct ndpi_flow_st
 
       fprintf(stdout,"name: %s\n",name );
 	
+	  int j = 0,max_len = sizeof(flow->host_server_name)-1, off = sizeof(struct mdns_header) + 1;
+	  while(off < payload_len && flow->packet.payload[off] != '\0'){
+	  	
+		  flow->host_server_name[j] =  flow->packet.payload[off];
+		  if( j < max_len){
+		  	if(flow->host_server_name[j] < ' ' )
+				flow->host_server_name[j] = '.';
+		  }
+		  else
+			  break;
 
-	  strcpy(flow->host_server_name,name);
+		  off++;
+	  }
 
 
 #ifdef DEBUG_DISCOVERY
